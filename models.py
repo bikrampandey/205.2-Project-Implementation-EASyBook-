@@ -1,7 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
-class User(db.models):
+class User(db.Model):
     __tablename__ = 'users'
     user_id = db.Column(db.Integer, primary_key=True)
     full_name = db.Column(db.String(100), nullable=False)
@@ -17,4 +17,4 @@ class User(db.models):
         self.name = name
         self.phone = phone
         self.age = age
-        self.is_admin = is_admin
+        

@@ -1,0 +1,221 @@
+/* General Body Styles */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: #f0f0f0; /* Solid light gray background, no image */
+}
+
+/* Header Styles */
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 70px;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    z-index: 1000;
+}
+
+/* Footer Styles */
+.footer {
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(10px);
+    padding: 10px;
+    text-align: center;
+    color: white;
+    font-size: 14px;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+/* Content Wrapper for Centering */
+.content {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 70px 20px; /* Space for header and footer */
+    min-height: calc(100vh - 140px); /* Adjust for header and footer height */
+}
+
+/* Login Form Styles */
+.form-box {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    padding: 2rem;
+    border-radius: 10px;
+    width: 300px;
+    text-align: center;
+    color: #000;
+    margin: auto;
+}
+
+.form-box h1 {
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+    color: #000;
+}
+
+.form-box label {
+    display: block;
+    text-align: left;
+    margin-bottom: 0.25rem;
+    font-size: 0.875rem;
+    font-weight: bold;
+}
+
+.form-box input {
+    width: 100%;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+    border: none;
+    border-bottom: 1px solid #000;
+    background: transparent;
+    outline: none;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+.form-box button {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: #34d399;
+    color: #fff;
+    border: none;
+    border-radius: 20px;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.form-box button:hover {
+    background-color: #2dd4bf;
+}
+
+.form-box a {
+    display: block;
+    margin-top: 1rem;
+    color: #000;
+    text-decoration: none;
+    font-size: 0.875rem;
+}
+
+.form-box a span.signup-btn {
+    color: #ef4444;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    border-radius: 5px;
+}
+
+.form-box a span.signup-btn:hover {
+    background-color: #0a0a0a;
+    color: #fff;
+    text-decoration: none;
+}
+
+.form-box a:hover {
+    text-decoration: underline;
+}
+
+/* Signup Form Styles */
+.form-box.signup {
+    width: 800px;
+    max-width: 90%;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.form-box.signup h1 {
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 1.5rem;
+    color: #000;
+}
+
+.form-box.signup label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: bold;
+    text-align: left;
+    font-size: 0.875rem;
+}
+
+.form-box.signup input[type="text"],
+.form-box.signup input[type="password"],
+.form-box.signup input[type="email"],
+.form-box.signup input[type="tel"],
+.form-box.signup input[type="number"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+.form-box.signup button.signup-btn {
+    width: 100%;
+    padding: 12px;
+    background-color: #66ff99;
+    border: none;
+    border-radius: 25px;
+    color: black;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.form-box.signup button.signup-btn:hover {
+    background-color: #55e088;
+}
+
+.login-link {
+    text-align: center;
+    margin-top: 15px;
+}
+
+.login-link a {
+    color: #0066cc;
+    text-decoration: none;
+}
+
+.login-link a:hover {
+    text-decoration: underline;
+}
+
+/* Message Styles for AJAX Feedback */
+.message {
+    text-align: center;
+    margin: 20px 0 10px 0;
+    font-size: 14px;
+    color: #ffffff;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 10px;
+    border-radius: 5px;
+    width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.message-success {
+    color: #32cd32;
+}
+
+.message-error {
+    color: #ff0000;
+}

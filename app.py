@@ -18,7 +18,7 @@ from models import User
 def index():
     return redirect(url_for('login_by_ajax'))
 
-@app.route('/login_by_ajax', methods=['GET' 'POST'])
+@app.route('/login_by_ajax', methods=['GET', 'POST'])
 def login_by_ajax():
     if request.method == 'POST':
         data = request.get_json()
@@ -31,6 +31,33 @@ def login_by_ajax():
             return jsonify({'success': True, 'redirect': url_for('user_home')})
         return jsonify({'success': False, 'message': 'Invalid credentials'}), 401
     return render_template('login.html')
+
+
+
+@app.route('/signup_by_ajax', methods=['GET', 'POST'])
+def signup_by_ajax():
+    if request.method == 'POST':
+        data = request.get_json()
+        email = data.get('email')
+        password = data.get('password')
+        name = data.get('name')
+        phone = data.get('phone')
+        age = data.get('age')
+
+        if User.query.filter_by(email=email).first():
+            return jsonify({'success': False, 'message': 'Email already exists'}), 400
+
+        user = User(
+            email=email,
+            password=bcrypt.generate_password_hash(password).decode('utf-8'),
+            name=name,
+            phone=phone,
+            age=age
+        )
+        db.session.add(user)
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'Registration successful! Please log in.'})
+    return render_template('signup.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
