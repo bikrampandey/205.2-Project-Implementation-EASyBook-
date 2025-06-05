@@ -1,19 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Sign Up</title>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-        <link rel="stylesheet" href="/static/css/style.css">
-        <style>
-            body {
-                background-image: url('../static/images/background.jpg');
-            }
-        </style>
-    </head>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        body {
+            background-image: url('../static/images/background.jpg');
+        }
+    </style>
+</head>
 <body>
     <nav class="navbar">
         <div class="logo">EASyBook</div>
@@ -26,76 +26,64 @@
         <div class="form-box">
             <h1>SIGN UP</h1>
             <div id="message"></div>
-            <form id="signupForm" method="POST" enctype="multipart/form-data">
-                
-                <input type="text" id="id_name" name="ame" placeholder="Name" required>
-
-                <input type="text" id="id_email" name="email" placeholder="Email" required>
-
-              
-                <input type="text" id="id_phone" name="phone" placeholder="phone" required>
-
-                <input type="number" name="age" placeholder="Age" required>
-
-                
+            <form id="signupForm" method="POST">
+                <input type="text" id="id_name" name="name" placeholder="Full Name" required>
+                <input type="email" id="id_email" name="email" placeholder="Email" required>
+                <input type="text" id="id_phone" name="phone" placeholder="Phone" required>
+                <input type="number" id="id_age" name="age" placeholder="Age" required>
                 <input type="password" id="id_password" name="password" placeholder="Password" required>
-
-               
                 <input type="password" id="id_confirm_password" name="confirm_password" placeholder="Confirm Password" required>
-
                 <button type="submit" class="signup-btn">Sign up</button>
             </form>
             <div class="login-link">
-                <p>have an account? <a href="/login_by_ajax">Log In</a></p>
+                <p>Have an account? <a href="/login_by_ajax">Log In</a></p>
             </div>
             <div id="output-msg"></div>
         </div>
     </div>
 
+    <footer class="footer">
+        © 2025 1st project. All rights reserved.
+    </footer>
+
     <script type="text/javascript">
         $(document).ready(function() {
             $('#signupForm').on('submit', function(e) {
-                e.preventDefault(); // Prevent default form submission
-    
-// Create FormData object
-            var formData = new FormData();
-            formData.append('username', $('#id_name').val());
-            formData.append('email', $('#id_email').val());
-            formData.append('password', $('#id_password').val());
-            formData.append('address', $('#id_address').val());
-            formData.append('phone', $('#id_phone').val());
-            formData.append('confirm_password', $('#id_confirm_password').val());
-            
-            // Get file input
-            var fileInput = $('#id_profile_picture')[0].files[0];
-            if (fileInput) {
-                formData.append('profile_picture', fileInput);
-            } else {
-                console.log("No file selected"); // Debug
-            }
-    
+                e.preventDefault();
+                var password = $('#id_password').val();
+                var confirm_password = $('#id_confirm_password').val();
+                
+                if (password !== confirm_password) {
+                    $('#output-msg').text('Passwords do not match').css('color', 'red').show();
+                    return;
+                }
+
                 $.ajax({
                     url: '/signup_by_ajax',
                     type: 'POST',
-                    data: formData,
-                    processData: false, // Prevent jQuery from processing FormData
-                    contentType: false, // Let browser set multipart/form-data
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        name: $('#id_name').val(),
+                        email: $('#id_email').val(),
+                        phone: $('#id_phone').val(),
+                        age: $('#id_age').val(),
+                        password: password,
+                        confirm_password: confirm_password
+                    }),
                     success: function(data) {
-                        $('#output-msg').text(data.message).show();
+                        $('#output-msg').text(data.message).css('color', data.success ? 'green' : 'red').show();
                         if (data.success) {
-                            window.location.href = '/login-by-ajax';
+                            setTimeout(() => {
+                                window.location.href = data.redirect;
+                            }, 1000);
                         }
                     },
-                    error: function(xhr, status, error) {
-                        $('#output-msg').text('Error: ' + xhr.responseJSON.message).show();
+                    error: function(xhr) {
+                        $('#output-msg').text('Error: ' + xhr.responseJSON.message).css('color', 'red').show();
                     }
                 });
             });
         });
     </script>
-
-    <footer class="footer">
-        © 2025 1st project. All rights reserved.
-    </footer>
 </body>
 </html>
