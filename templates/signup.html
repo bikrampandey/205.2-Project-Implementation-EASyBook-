@@ -10,7 +10,12 @@
     <link rel="stylesheet" href="/static/css/style.css">
     <style>
         body {
-            background-image: url('../static/images/background.jpg');
+            background-image: url();
+        }
+        .error {
+            color: red;
+            font-size: 14px;
+            margin-top: 5px;
         }
     </style>
 </head>
@@ -26,13 +31,17 @@
         <div class="form-box">
             <h1>SIGN UP</h1>
             <div id="message"></div>
-            <form id="signupForm" method="POST">
+            <form id="signupForm" method="POST" enctype="multipart/form-data">
                 <input type="text" id="id_name" name="name" placeholder="Full Name" required>
                 <input type="email" id="id_email" name="email" placeholder="Email" required>
                 <input type="text" id="id_phone" name="phone" placeholder="Phone" required>
                 <input type="number" id="id_age" name="age" placeholder="Age" required>
                 <input type="password" id="id_password" name="password" placeholder="Password" required>
                 <input type="password" id="id_confirm_password" name="confirm_password" placeholder="Confirm Password" required>
+                <label for="profile_picture">PROFILE PICTURE</label>
+                <input type="file" id="id_profile_picture" name="profile_picture" accept="image/png,image/jpeg,image/gif,image/jfif">
+                <div id="file-error" class="error"></div>
+
                 <button type="submit" class="signup-btn">Sign up</button>
             </form>
             <div class="login-link">
@@ -50,26 +59,29 @@
         $(document).ready(function() {
             $('#signupForm').on('submit', function(e) {
                 e.preventDefault();
-                var password = $('#id_password').val();
-                var confirm_password = $('#id_confirm_password').val();
-                
-                if (password !== confirm_password) {
-                    $('#output-msg').text('Passwords do not match').css('color', 'red').show();
-                    return;
-                }
+                 var formData = new FormData();
+            formData.append('username', $('#id_name').val());
+            formData.append('email', $('#id_email').val());
+            formData.append('phone', $('#id_phone').val());
+            formData.append('age', $('#id_age').val());
+            formData.append('password', $('#id_password').val());
+            formData.append('confirm_password', $('#id_confirm_password').val());
 
+            var fileInput = $('#id_profile_picture')[0].files[0];
+            if (fileInput) {
+                formData.append('profile_picture', fileInput);
+            } else {
+                console.log("No file selected"); // Debug
+            }
+
+                var formData = new FormData(this);
+                
                 $.ajax({
                     url: '/signup_by_ajax',
                     type: 'POST',
-                    contentType: 'application/json',
-                    data: JSON.stringify({
-                        name: $('#id_name').val(),
-                        email: $('#id_email').val(),
-                        phone: $('#id_phone').val(),
-                        age: $('#id_age').val(),
-                        password: password,
-                        confirm_password: confirm_password
-                    }),
+                    data: formData,
+                    processData: false,
+                    contentType: false,
                     success: function(data) {
                         $('#output-msg').text(data.message).css('color', data.success ? 'green' : 'red').show();
                         if (data.success) {
@@ -78,8 +90,14 @@
                             }, 1000);
                         }
                     },
-                    error: function(xhr) {
-                        $('#output-msg').text('Error: ' + xhr.responseJSON.message).css('color', 'red').show();
+                    error: function(xhr, status, error) {
+                        var errorMessage = 'Unknown server error';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMessage = xhr.responseJSON.message;
+                        } else if (xhr.statusText) {
+                            errorMessage = xhr.statusText;
+                        }
+                        $('#output-msg').text('Error: ' + errorMessage).css('color', 'red').show();
                     }
                 });
             });

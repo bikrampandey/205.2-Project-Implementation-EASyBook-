@@ -72,11 +72,16 @@
     </style>
 </head>
 <body>
-    <div class="header">
-        <div class="logo">EasyBook</div>
-        <input type="text" class="search-bar" placeholder="Search">
-        <div class="profile-icon" onclick="alert('Navigate to User Profile')"></div>
-    </div>
+         <nav class="navbar">
+        <div class="logo">EASyBook</div>
+        <div class="nav-links">
+            <a href="{{ url_for('home') }}" class="btn btn-link text-white">Home</a>
+            {% if session.is_admin %}
+                <a href="{{ url_for('admin_dashboard') }}" class="btn btn-link text-white">Admin Dashboard</a>
+            {% endif %}
+            <a href="{{ url_for('logout') }}" class="btn btn-link text-white">Logout</a>
+        </div>
+    </nav>
     <div class="welcome">Welcome to EasyBook</div>
     <div class="categories">
         <div class="category-box" onclick="alert('Navigate to Fiction Category')">
