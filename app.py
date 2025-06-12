@@ -63,9 +63,18 @@ class User(db.Model):
         self.profile_picture = profile_picture
         self.is_admin = is_admin
 
-# Create admin user
+# Category model
+class Category(db.Model):
+    __tablename__ = 'categories'
+    category_id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), unique=True, nullable=False)
+
+    def __init__(self, name):
+        self.name = name
+
+# Create admin user and ensure tables
 with app.app_context():
-    db.create_all()  # Ensure tables are created
+    db.create_all()
     existing_admin = User.query.filter_by(email='pandeybikram570@gmail.com').first()
     if not existing_admin:
         hashed_password = bcrypt.generate_password_hash('1234').decode('utf-8')
@@ -244,21 +253,9 @@ def home():
 
 @app.route('/profile')
 def profile():
-    if 'user_id' not in session:
-        return redirect(url_for('login_by_ajax'))
-    try:
-        user = db.session.get(User, session['user_id'])
-        if not user:
-            logging.error(f"User not found for user_id: {session['user_id']}")
-            session.pop('user_id', None)
-            session.pop('is_admin', None)
-            return redirect(url_for('login_by_ajax'))
-        return render_template('profile.html', user=user)
-    except OperationalError as e:
-        logging.error(f"Database error in profile route: {str(e)}")
-        return render_template('error.html', message='Database error. Please try again later.'), 500
+    return redirect(url_for('my_account'))
 
-@app.route('/admin_dashboard')
+@app.route('/admin_dashboard', methods=['GET', 'POST'])
 def admin_dashboard():
     if 'user_id' not in session or not session.get('is_admin'):
         return redirect(url_for('admin_login'))
@@ -269,10 +266,221 @@ def admin_dashboard():
             session.pop('user_id', None)
             session.pop('is_admin', None)
             return redirect(url_for('admin_login'))
-        all_users = User.query.all()
-        return render_template('admin_dashboard.html', user=user, all_users=all_users)
+        if request.method == 'POST':
+            name = request.form.get('name')
+            logging.debug(f"Add category form data: name={name}")
+            if not name:
+                flash('Category name is required!', 'error')
+                return render_template('admin_dashboard.html', user=user)
+            if Category.query.filter_by(name=name).first():
+                flash('Category already exists!', 'error')
+                return render_template('admin_dashboard.html', user=user)
+            category = Category(name=name)
+            db.session.add(category)
+            db.session.commit()
+            logging.debug(f"Category {name} added successfully")
+            flash('Category added successfully!', 'success')
+            return redirect(url_for('admin_dashboard'))
+        return render_template('admin_dashboard.html', user=user)
     except OperationalError as e:
+        db.session.rollback()
         logging.error(f"Database error in admin_dashboard route: {str(e)}")
+        return render_template('error.html', message='Database error. Please try again later.'), 500
+    except Exception as e:
+        db.session.rollback()
+        logging.error(f"Unexpected error in admin_dashboard route: {str(e)}")
+        return render_template('error.html', message=f'Server error: {str(e)}'), 500
+
+@app.route('/categories')
+def categories():
+    if 'user_id' not in session or not session.get('is_admin'):
+        return redirect(url_for('admin_login'))
+    try:
+        user = db.session.get(User, session['user_id'])
+        if not user:
+            logging.error(f"User not found for user_id: {session['user_id']}")
+            session.pop('user_id', None)
+            session.pop('is_admin', None)
+            return redirect(url_for('admin_login'))
+        categories = Category.query.all()
+        return render_template('categories.html', user=user, categories=categories)
+    except OperationalError as e:
+        logging.error(f"Database error in categories route: {str(e)}")
+        return render_template('error.html', message='Database error. Please try again later.'), 500
+
+@app.route('/edit_category/<int:category_id>', methods=['GET', 'POST'])
+def edit_category(category_id):
+    if 'user_id' not in session or not session.get('is_admin'):
+        return redirect(url_for('admin_login'))
+    try:
+        user = db.session.get(User, session['user_id'])
+        if not user:
+            logging.error(f"User not found for user_id: {session['user_id']}")
+            session.pop('user_id', None)
+            session.pop('is_admin', None)
+            return redirect(url_for('admin_login'))
+        category = db.session.get(Category, category_id)
+        if not category:
+            flash('Category not found!', 'error')
+            return redirect(url_for('categories'))
+        if request.method == 'POST':
+            name = request.form.get('name')
+            logging.debug(f"Edit category form data: name={name}")
+            if not name:
+                flash('Category name is required!', 'error')
+                return render_template('edit_category.html', user=user, category=category)
+            existing_category = Category.query.filter_by(name=name).first()
+            if existing_category and existing_category.category_id != category_id:
+                flash('Category name already exists!', 'error')
+                return render_template('edit_category.html', user=user, category=category)
+            category.name = name
+            db.session.commit()
+            logging.debug(f"Category {category_id} updated successfully")
+            flash('Category updated successfully!', 'success')
+            return redirect(url_for('categories'))
+        return render_template('edit_category.html', user=user, category=category)
+    except OperationalError as e:
+        db.session.rollback()
+        logging.error(f"Database error in edit_category route: {str(e)}")
+        return render_template('error.html', message='Database error. Please try again later.'), 500
+    except Exception as e:
+        db.session.rollback()
+        logging.error(f"Unexpected error in edit_category route: {str(e)}")
+        return render_template('error.html', message=f'Server error: {str(e)}'), 500
+
+@app.route('/delete_category/<int:category_id>', methods=['POST'])
+def delete_category(category_id):
+    if 'user_id' not in session or not session.get('is_admin'):
+        return redirect(url_for('admin_login'))
+    try:
+        user = db.session.get(User, session['user_id'])
+        if not user:
+            logging.error(f"User not found for user_id: {session['user_id']}")
+            session.pop('user_id', None)
+            session.pop('is_admin', None)
+            return redirect(url_for('admin_login'))
+        category = db.session.get(Category, category_id)
+        if not category:
+            flash('Category not found!', 'error')
+            return redirect(url_for('categories'))
+        db.session.delete(category)
+        db.session.commit()
+        logging.debug(f"Category {category_id} deleted successfully")
+        flash('Category deleted successfully!', 'success')
+        return redirect(url_for('categories'))
+    except OperationalError as e:
+        db.session.rollback()
+        logging.error(f"Database error in delete_category route: {str(e)}")
+        return render_template('error.html', message='Database error. Please try again later.'), 500
+    except Exception as e:
+        db.session.rollback()
+        logging.error(f"Unexpected error in delete_category route: {str(e)}")
+        return render_template('error.html', message=f'Server error: {str(e)}'), 500
+
+@app.route('/view_books/<int:category_id>')
+def view_books(category_id):
+    if 'user_id' not in session or not session.get('is_admin'):
+        return redirect(url_for('admin_login'))
+    try:
+        user = db.session.get(User, session['user_id'])
+        if not user:
+            logging.error(f"User not found for user_id: {session['user_id']}")
+            session.pop('user_id', None)
+            session.pop('is_admin', None)
+            return redirect(url_for('admin_login'))
+        category = db.session.get(Category, category_id)
+        if not category:
+            flash('Category not found!', 'error')
+            return redirect(url_for('categories'))
+        return render_template('view_books.html', user=user, category=category)
+    except OperationalError as e:
+        logging.error(f"Database error in view_books route: {str(e)}")
+        return render_template('error.html', message='Database error. Please try again later.'), 500
+    except Exception as e:
+        logging.error(f"Unexpected error in view_books route: {str(e)}")
+        return render_template('error.html', message=f'Server error: {str(e)}'), 500
+
+@app.route('/my_account', methods=['GET', 'POST'])
+def my_account():
+    if 'user_id' not in session or not session.get('is_admin'):
+        return redirect(url_for('admin_login'))
+    try:
+        user = db.session.get(User, session['user_id'])
+        if not user:
+            logging.error(f"User not found for user_id: {session['user_id']}")
+            session.pop('user_id', None)
+            session.pop('is_admin', None)
+            return redirect(url_for('admin_login'))
+        if request.method == 'POST':
+            full_name = request.form.get('full_name')
+            email = request.form.get('email')
+            phone = request.form.get('phone')
+            age = request.form.get('age')
+            profile_picture = request.files.get('profile_picture')
+
+            if not all([full_name, email]):
+                flash('Full name and email are required!', 'error')
+                return render_template('my_account.html', user=user)
+
+            if email != user.email and User.query.filter_by(email=email).first():
+                flash('Email already exists!', 'error')
+                return render_template('my_account.html', user=user)
+
+            try:
+                age = int(age) if age else None
+            except ValueError:
+                flash('Age must be a valid number!', 'error')
+                return render_template('my_account.html', user=user)
+
+            if profile_picture and allowed_file(profile_picture.filename):
+                filename = secure_filename(profile_picture.filename)
+                dt_now = dt.now().strftime("%Y%m%d%H%M%S%f")
+                file_extension = get_file_extension(profile_picture.filename)
+                filename_to_save = f"{full_name}_{dt_now}.{file_extension}"
+                file_path = os.path.join(app.config['PROFILE_PIC_UPLOAD_FOLDER'], filename_to_save)
+                try:
+                    profile_picture.save(file_path)
+                    user.profile_picture = file_path
+                    logging.debug(f"Profile picture updated at: {file_path}")
+                except Exception as e:
+                    logging.error(f"Error saving profile picture: {str(e)}")
+                    flash(f'Failed to save profile picture: {str(e)}', 'error')
+                    return render_template('my_account.html', user=user)
+
+            user.full_name = full_name
+            user.email = email
+            user.phone = phone
+            user.age = age
+            db.session.commit()
+            logging.debug(f"User {user.email} profile updated successfully")
+            flash('Profile updated successfully!', 'success')
+            return redirect(url_for('my_account'))
+
+        return render_template('my_account.html', user=user)
+    except OperationalError as e:
+        db.session.rollback()
+        logging.error(f"Database error in my_account route: {str(e)}")
+        return render_template('error.html', message='Database error. Please try again later.'), 500
+    except Exception as e:
+        db.session.rollback()
+        logging.error(f"Unexpected error in my_account route: {str(e)}")
+        return render_template('error.html', message=f'Server error: {str(e)}'), 500
+
+@app.route('/all_users')
+def all_users():
+    if 'user_id' not in session or not session.get('is_admin'):
+        return redirect(url_for('admin_login'))
+    try:
+        user = db.session.get(User, session['user_id'])
+        if not user:
+            logging.error(f"User not found for user_id: {session['user_id']}")
+            session.pop('user_id', None)
+            session.pop('is_admin', None)
+            return redirect(url_for('admin_login'))
+        all_users = User.query.all()
+        return render_template('all_users.html', user=user, all_users=all_users)
+    except OperationalError as e:
+        logging.error(f"Database error in all_users route: {str(e)}")
         return render_template('error.html', message='Database error. Please try again later.'), 500
 
 @app.route('/logout')
