@@ -1,0 +1,306 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Borrow Form - EASyBook</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Arial:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        header h1 {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .back-button {
+            background-color: #3498db;
+            color: white;
+            padding: 8px 16px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: 500;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .back-button:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .container {
+            display: flex;
+            padding: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+            gap: 20px;
+        }
+
+        .sidebar {
+            width: 20%;
+            background: #ffffff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar h3 {
+            margin-top: 0;
+            font-size: 1.25rem;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .sidebar li {
+            margin-bottom: 10px;
+        }
+
+        .sidebar a {
+            text-decoration: none;
+            color: #4a5568;
+            font-size: 1rem;
+            padding: 8px;
+            display: block;
+            border-radius: 5px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .sidebar a:hover {
+            background-color: #e6f3fa;
+            color: #3498db;
+        }
+
+        .main-content {
+            width: 80%;
+            text-align: center;
+        }
+
+        .form-title {
+            background: #ccc;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 1.5rem;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        .borrow-container {
+            display: flex;
+            gap: 30px;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .borrow-container:hover {
+            transform: translateY(-5px);
+        }
+
+        .book-details {
+            width: 40%;
+            text-align: left;
+        }
+
+        .book-details img {
+            width: 200px;
+            height: 250px;
+            object-fit: cover;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            background-color: #e0e0e0;
+            margin-bottom: 10px;
+        }
+
+        .book-details p {
+            margin-bottom: 10px;
+            font-size: 1rem;
+            color: #7f8c8d;
+        }
+
+        .book-details strong {
+            color: #2c3e50;
+            font-weight: bold;
+        }
+
+        .borrow-form {
+            width: 60%;
+            padding: 10px;
+            background: #f7f7f7;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+
+        .borrow-form form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .borrow-form label {
+            font-size: 1rem;
+            color: #2c3e50;
+            font-weight: 500;
+            text-align: left;
+        }
+
+        .borrow-form input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            color: #4a5568;
+        }
+
+        .borrow-form input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+        }
+
+        .submit-button {
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .submit-button:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .alert {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                padding: 15px;
+            }
+
+            .sidebar {
+                width: 100%;
+            }
+
+            .main-content {
+                width: 100%;
+            }
+
+            .borrow-container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .book-details {
+                width: 100%;
+                text-align: center;
+            }
+
+            .borrow-form {
+                width: 100%;
+            }
+
+            .book-details img {
+                width: 160px;
+                height: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>EASyBook</h1>
+        <a href="{{ url_for('borrow_book', book_id=book.book_id) }}" class="back-button">Back</a>
+    </header>
+
+    <div class="container">
+        <aside class="sidebar">
+            <h3>Book Categories</h3>
+            <ul>
+                <li><a href="{{ url_for('home') }}">Home</a></li>
+                {% for category in categories %}
+                    <li><a href="{{ url_for('user_category_books', category_id=category.category_id) }}">{{ category.name }}</a></li>
+                {% endfor %}
+                <li><a href="{{ url_for('borrowed_books') }}">Borrowed Books</a></li>
+                <li><a href="{{ url_for('profile') }}">Profile</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <h2 class="form-title">Borrow Form</h2>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            <div class="borrow-container">
+                <div class="book-details">
+                   <img src="/{{book.image_path}}" alt="{{ book.book_name }}">
+                    <p><strong>Name:</strong> {{ book.book_name }}</p>
+                    <p><strong>Author:</strong> {{ book.author_name }}</p>
+                </div>
+
+                <div class="borrow-form">
+                    <form method="POST" action="{{ url_for('borrow_form', book_id=book.book_id) }}">
+                        <label for="name">Full Name</label>
+                        <input type="text" id="name" name="name" value="{{ user.full_name }}" required>
+                        
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" value="{{ user.email }}" required>
+                        
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" name="phone" value="{{ user.phone or '' }}" required>
+                        
+                        <label for="borrow_date">Borrow Date</label>
+                        <input type="date" id="borrow_date" name="borrow_date" required>
+                        
+                        <label for="return_date">Return Date (max 14 days)</label>
+                        <input type="date" id="return_date" name="return_date" required>
+                        
+                        <button type="submit" class="submit-button">Submit Borrow Request</button>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

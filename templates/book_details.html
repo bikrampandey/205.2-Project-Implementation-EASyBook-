@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Details - EASyBook</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .navbar-top {
+            background-color: #333;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .navbar-top .logo {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        .navbar-top .greeting {
+            margin: 0 20px;
+        }
+        .navbar-top .add-books a,
+        .navbar-top .logout a {
+            color: white;
+            text-decoration: none;
+        }
+        .navbar-top .add-books a:hover,
+        .navbar-top .logout a:hover {
+            text-decoration: underline;
+        }
+        .container-fluid {
+            display: flex;
+            min-height: calc(100vh - 60px);
+        }
+        .sidebar {
+            width: 200px;
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-right: 1px solid #ddd;
+        }
+        .sidebar a {
+            display: block;
+            color: #333;
+            padding: 10px;
+            text-decoration: none;
+            margin-bottom: 10px;
+        }
+        .sidebar a:hover {
+            background-color: #e9ecef;
+            border-radius: 5px;
+        }
+        .main-content {
+            flex-grow: 1;
+            padding: 20px;
+            background-color: #d3d3d3;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .book-details-card {
+            background-color: #fff;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            max-width: 600px;
+            margin: 20px auto;
+            text-align: left;
+        }
+        .book-details-card img {
+            max-width: 200px;
+            max-height: 200px;
+            object-fit: cover;
+            margin-bottom: 20px;
+        }
+        .book-details-card p {
+            margin: 10px 0;
+            font-size: 1em;
+        }
+        .book-details-card .btn {
+            margin-top: 20px;
+        }
+        .footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            position: relative;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar-top">
+        <div class="logo">EASyBook</div>
+        <div class="greeting">Welcome, {{ user.full_name }}</div>
+        <div class="add-books">
+            <a href="{{ url_for('add_books') }}" class="btn btn-link text-white">Add Books</a>
+        </div>
+        <div class="logout">
+            <a href="{{ url_for('logout') }}" class="btn btn-link text-white">Logout</a>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="sidebar">
+            <a href="{{ url_for('admin_dashboard') }}">Add Category</a>
+            <a href="{{ url_for('categories') }}">Categories</a>
+            <a href="{{ url_for('my_account') }}">My Account</a>
+            <a href="{{ url_for('all_users') }}">All Users</a>
+        </div>
+        <div class="main-content">
+            <div class="search-bar">
+                <input type="text" placeholder="Search">
+                <button class="btn btn-info">Search</button>
+                <a href="{{ url_for('view_books', category_id=book.category.category_id) }}" class="btn btn-info">Back</a>
+            </div>
+            <div class="book-details-card">
+                <img src="{{ book.image_path }}" alt="{{ book.book_name }}">
+                <p><strong>Book Name:</strong> {{ book.book_name }}</p>
+                <p><strong>Author Name:</strong> {{ book.author_name }}</p>
+                <p><strong>Publication Year:</strong> {{ book.publication_year }}</p>
+                <p><strong>Status:</strong> {{ 'Available' if book.status else 'Not Available' }}</p>
+                <p><strong>Description:</strong> {{ book.description or 'No description available' }}</p>
+                <p><strong>Category:</strong> {{ book.category.name }}</p>
+            </div>
+            <div class="flash-messages">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }}">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        © 2025 EASyBook. All rights reserved.
+    </footer>
+</body>
+</html>

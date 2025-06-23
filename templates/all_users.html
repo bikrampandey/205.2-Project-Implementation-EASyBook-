@@ -4,138 +4,409 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>All Users - EASyBook</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" integrity="anonymous">
-    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
     <style>
         body {
-            background-image: url('/static/images/background.jpg');
-            background-size: cover;
-            margin: 0;
             font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            margin: 0;
+            min-height: 100vh;
         }
         .navbar-top {
-            background-color: #333;
+            background-color: #2c3e50;
             color: white;
-            padding: 10px 20px;
+            padding: 15px 30px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
         .navbar-top .logo {
-            font-size: 1.5em;
+            font-size: 1.8em;
             font-weight: bold;
         }
         .navbar-top .greeting {
-            margin: 0 20px;
+            font-size: 1.1em;
+            margin: 0 15px;
         }
         .navbar-top .logout a {
             color: white;
             text-decoration: none;
+            font-size: 1em;
+            transition: color 0.3s ease;
         }
         .navbar-top .logout a:hover {
-            text-decoration: underline;
+            color: #3498db;
         }
         .container-fluid {
             display: flex;
-            min-height: calc(100vh - 60px);
+            min-height: calc(100vh - 80px);
         }
         .sidebar {
-            width: 200px;
-            background-color: #f8f9fa;
+            width: 250px;
+            background-color: #2c3e50;
             padding: 20px;
-            border-right: 1px solid #ddd;
+            color: white;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            overflow-y: auto;
         }
         .sidebar a {
             display: block;
-            color: #333;
-            padding: 10px;
+            color: #ecf0f1;
+            padding: 10px 15px;
             text-decoration: none;
-            margin-bottom: 10px;
+            border-radius: 5px;
+            margin-bottom: 5px;
+            transition: background-color 0.3s ease;
         }
         .sidebar a:hover {
-            background-color: #e9ecef;
-            border-radius: 5px;
+            background-color: #3498db;
+            color: white;
+        }
+        .sidebar a.active {
+            background-color: #3498db;
+            font-weight: bold;
         }
         .main-content {
             flex-grow: 1;
-            padding: 20px;
-            background-color: rgba(255, 255, 255, 0.8);
+            padding: 30px;
+            background-color: rgba(255,255,255,0.95);
             border-radius: 10px;
             margin: 20px;
+            margin-left: 270px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .main-content h1 {
+            color: #2c3e50;
+            font-size: 2.2em;
+            margin-bottom: 15px;
+        }
+        .main-content h3 {
+            color: #7f8c8d;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+        }
+        .flash-messages .alert {
+            border-radius: 5px;
+            margin-bottom: 15px;
+            padding: 15px;
         }
         .users-table {
             width: 100%;
-            margin-top: 20px;
             border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         .users-table th, .users-table td {
-            border: 1px solid #ddd;
-            padding: 8px;
+            padding: 12px;
             text-align: left;
+            border-bottom: 1px solid #ddd;
         }
         .users-table th {
-            background-color: #f2f2f2;
-            font-weight: bold;
+            background-color: #2c3e50;
+            color: white;
+        }
+        .users-table tr:hover {
+            background-color: #f5f7fa;
+        }
+        .btn-primary {
+            background-color: #3498db;
+            border: none;
+            padding: 8px 16px;
+            font-size: 0.9em;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+        .btn-danger {
+            background-color: #e74c3c;
+            border: none;
+            padding: 8px 16px;
+            font-size: 0.9em;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        .modal-content {
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .modal-header {
+            background-color: #2c3e50;
+            color: white;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+        }
+        .modal-footer .btn-cancel {
+            background-color: #7f8c8d;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+        }
+        .modal-footer .btn-update {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+        }
+        .modal-footer .btn-cancel:hover {
+            background-color: #6c757d;
+        }
+        .modal-footer .btn-update:hover {
+            background-color: #2980b9;
+        }
+        .form-group label {
+            color: #2c3e50;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1em;
         }
         .footer {
-            background-color: #333;
+            background-color: #2c3e50;
             color: white;
             text-align: center;
-            padding: 10px;
+            padding: 15px;
+            width: 100%;
+            box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
             position: relative;
             bottom: 0;
-            width: 100%;
+        }
+        @media (max-width: 768px) {
+            .container-fluid {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+            .main-content {
+                margin-left: 20px;
+            }
         }
     </style>
+    <script>
+        $(document).ready(function() {
+            $('.sidebar a').each(function() {
+                if ($(this).attr('href') === window.location.pathname) {
+                    $(this).addClass('active');
+                }
+            });
+            $('.edit-user-btn').on('click', function() {
+                const button = $(this);
+                $('#user_id').val(button.data('user-id'));
+                $('#full_name').val(button.data('full-name'));
+                $('#email').val(button.data('email'));
+                $('#phone').val(button.data('phone'));
+                $('#age').val(button.data('age'));
+                $('#is_admin').val(button.data('is-admin').toString());
+                $('#profile_picture').val('');
+            });
+            $('#editUserForm').on('submit', function(e) {
+                e.preventDefault();
+                const formData = new FormData(this);
+                $.ajax({
+                    url: `/edit_user/${$('#user_id').val()}`,
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        $('.flash-messages').empty();
+                        if (response.success) {
+                            $('.flash-messages').append(`<div class="alert alert-success">${response.message}</div>`);
+                            const user = response.user;
+                            const row = $(`tr#user-${user.user_id}`);
+                            row.find('td:nth-child(2)').text(user.full_name || 'Not provided');
+                            row.find('td:nth-child(3)').text(user.email);
+                            row.find('td:nth-child(4)').text(user.phone || 'Not provided');
+                            row.find('td:nth-child(5)').text(user.age || 'Not provided');
+                            row.find('td:nth-child(6)').text(user.is_admin ? 'Admin' : 'User');
+                            row.find('.edit-user-btn').data({
+                                'full-name': user.full_name,
+                                'email': user.email,
+                                'phone': user.phone,
+                                'age': user.age,
+                                'is-admin': user.is_admin
+                            });
+                            $('#editUserModal').modal('hide');
+                        } else {
+                            $('.flash-messages').append(`<div class="alert alert-danger">${response.message}</div>`);
+                        }
+                    },
+                    error: function(xhr) {
+                        $('.flash-messages').empty();
+                        $('.flash-messages').append(`<div class="alert alert-danger">${xhr.responseJSON?.message || 'Failed to update user.'}</div>`);
+                    }
+                });
+            });
+            $('.delete-user-btn').on('click', function(e) {
+                e.preventDefault();
+                if (!confirm('Are you sure you want to delete this user?')) return;
+                const userId = $(this).data('delete-id');
+                $.ajax({
+                    url: `/delete_user/${userId}`,
+                    type: 'POST',
+                    success: function(response) {
+                        $('.flash-messages').empty();
+                        if (response.success) {
+                            $('.flash-messages').append(`<div class="alert alert-success">${response.message}</div>`);
+                            $(`#user-${userId}`).remove();
+                            $('.users-table tbody tr').each(function(index) {
+                                $(this).find('td:first').text(index + 1);
+                            });
+                        } else {
+                            $('.flash-messages').append(`<div class="alert alert-danger">${response.message}</div>`);
+                        }
+                    },
+                    error: function(xhr) {
+                        $('.flash-messages').empty();
+                        $('.flash-messages').append(`<div class="alert alert-danger">${xhr.responseJSON?.message || 'Failed to delete user.'}</div>`);
+                    }
+                });
+            });
+        });
+    </script>
 </head>
 <body>
     <nav class="navbar-top">
         <div class="logo">EASyBook</div>
         <div class="greeting">Welcome, {{ user.full_name }}</div>
         <div class="logout">
-            <a href="{{ url_for('logout') }}" class="btn btn-link text-white">Logout</a>
+            <a href="{{ url_for('logout') }}">Log out</a>
         </div>
     </nav>
-
     <div class="container-fluid">
         <div class="sidebar">
             <a href="{{ url_for('admin_dashboard') }}">Add Category</a>
             <a href="{{ url_for('categories') }}">Categories</a>
+            <a href="{{ url_for('admin_borrow_requests') }}">Borrow Requests</a>
             <a href="{{ url_for('my_account') }}">My Account</a>
             <a href="{{ url_for('all_users') }}">All Users</a>
+            <a href="{{ url_for('logout') }}">Log out</a>
         </div>
         <div class="main-content">
             <h1>All Users</h1>
-            <h3>User Management</h3>
+            <h3>Manage Registered Users</h3>
+            <div class="flash-messages">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }}">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+            </div>
             <table class="users-table">
                 <thead>
                     <tr>
-                        <th>ID</th>
+                        <th>S.No</th>
                         <th>Full Name</th>
                         <th>Email</th>
                         <th>Phone</th>
                         <th>Age</th>
-                        <th>Changes</th>
+                        <th>Role</th>
+                        <th>Actions</th>
                     </tr>
-                </tr>
                 </thead>
                 <tbody>
                     {% for u in all_users %}
-                    <tr>
-                        <td>{{ u.user_id }}</td>
+                    <tr id="user-{{ u.user_id }}">
+                        <td>{{ loop.index }}</td>
                         <td>{{ u.full_name }}</td>
                         <td>{{ u.email }}</td>
                         <td>{{ u.phone or 'Not provided' }}</td>
                         <td>{{ u.age or 'Not provided' }}</td>
+                        <td>{{ 'Admin' if u.is_admin else 'User' }}</td>
+                        <td>
+                            <button class="btn btn-primary btn-sm edit-user-btn" 
+                                    data-user-id="{{ u.user_id }}"
+                                    data-full-name="{{ u.full_name }}"
+                                    data-email="{{ u.email }}"
+                                    data-phone="{{ u.phone or '' }}"
+                                    data-age="{{ u.age or '' }}"
+                                    data-is-admin="{{ u.is_admin }}"
+                                    data-toggle="modal"
+                                    data-target="#editUserModal">Edit</button>
+                            {% if not u.is_admin %}
+                            <button class="btn btn-danger btn-sm delete-user-btn" data-delete-id="{{ u.user_id }}">Delete</button>
+                            {% endif %}
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
     </div>
-
+    <div class="modal fade" id="editUserModal" tabindex="-1" role="dialog" aria-labelledby="editUserModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editUserModalLabel">Edit User</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="editUserForm" enctype="multipart/form-data">
+                        <input type="hidden" id="user_id" name="user_id">
+                        <div class="form-group">
+                            <label for="full_name">Full Name</label>
+                            <input type="text" id="full_name" name="full_name" class="form-control" maxlength="100" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email address</label>
+                            <input type="email" id="email" name="email" class="form-control" maxlength="255" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone number</label>
+                            <input type="text" id="phone" name="phone" class="form-control" maxlength="20">
+                        </div>
+                        <div class="form-group">
+                            <label for="age">Age</label>
+                            <input type="number" id="age" name="age" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="profile_picture">Profile Picture</label>
+                            <input type="file" id="profile_picture" name="profile_picture" class="form-control-file" accept="image/*">
+                        </div>
+                        <div class="form-group">
+                            <label for="is_admin">Role</label>
+                            <select id="is_admin" name="is_admin" class="form-control" required>
+                                <option value="true">Admin</option>
+                                <option value="false">User</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-cancel" data-dismiss="modal">Close</button>
+                    <button type="submit" form="editUserForm" class="btn btn-update">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <footer class="footer">
-        © 2025 EASyBook. All rights reserved.
+        © 2020 EASyBook. All rights reserved.
     </footer>
 </body>
 </html>

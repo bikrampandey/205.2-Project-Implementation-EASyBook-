@@ -9,6 +9,7 @@ class User(db.Model):
     password = db.Column(db.String(255), nullable=False)
     phone = db.Column(db.String(20))
     age = db.Column(db.Integer)
+    profile_picture = db.Column(db.String(200))
     is_admin = db.Column(db.Boolean, default=False, nullable=False)
 
     def __init__(self, email, password, name, phone=None, age=None, is_admin=False):

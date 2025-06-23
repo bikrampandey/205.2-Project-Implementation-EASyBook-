@@ -1,122 +1,222 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - EASyBook</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" />
-    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
     <style>
         body {
-            background-image: url('/static/images/background_image.jpg');
-            background-size: cover;
-            margin: 0;
             font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            margin: 0;
+            min-height: 100vh;
         }
         .navbar-top {
-            background-color: #333;
+            background-color: #2c3e50;
             color: white;
-            padding: 10px 20px;
+            padding: 15px 30px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
         .navbar-top .logo {
-            font-size: 1.5em;
+            font-size: 1.8em;
             font-weight: bold;
         }
         .navbar-top .greeting {
-            margin: 0 20px;
+            font-size: 1.1em;
+            margin: 0 15px;
         }
         .navbar-top .logout a {
             color: white;
             text-decoration: none;
+            font-size: 1em;
+            transition: color 0.3s ease;
         }
         .navbar-top .logout a:hover {
-            text-decoration: underline;
+            color: #3498db;
         }
         .container-fluid {
             display: flex;
-            min-height: calc(100vh - 60px);
+            min-height: calc(100vh - 80px);
         }
         .sidebar {
-            width: 200px;
-            background-color: #f8f9fa;
+            width: 250px;
+            background-color: #2c3e50;
             padding: 20px;
-            border-right: 1px solid #ddd;
+            color: white;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            overflow-y: auto;
         }
         .sidebar a {
             display: block;
-            color: #333;
-            padding: 10px;
+            color: #ecf0f1;
+            padding: 10px 15px;
             text-decoration: none;
-            margin-bottom: 10px;
+            border-radius: 5px;
+            margin-bottom: 5px;
+            transition: background-color 0.3s ease;
         }
         .sidebar a:hover {
-            background-color: #e9ecef;
-            border-radius: 5px;
+            background-color: #3498db;
+            color: white;
+        }
+        .sidebar a.active {
+            background-color: #3498db;
+            font-weight: bold;
         }
         .main-content {
             flex-grow: 1;
-            padding: 20px;
-            background-color: rgba(255, 255, 255, 0.8);
+            padding: 30px;
+            background-color: rgba(255,255,255,0.95);
             border-radius: 10px;
             margin: 20px;
+            margin-left: 270px; /* Offset for fixed sidebar */
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
-        .form-group {
+        .main-content h1 {
+            color: #2c3e50;
+            font-size: 2.2em;
             margin-bottom: 15px;
         }
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-        }
-        .form-group input,
-        .form-group textarea {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-        .form-group textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
-        .flash-messages {
+        .main-content h3 {
+            color: #7f8c8d;
+            font-size: 1.5em;
             margin-bottom: 20px;
         }
         .flash-messages .alert {
-            margin-bottom: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            padding: 15px;
+        }
+        .form-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            color: #2c3e50;
+            font-weight: 500;
+            margin-bottom: 8px;
+            display: block;
+        }
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+            color: #4a5568;
+        }
+        .form-group input:focus, .form-group textarea:focus {
+            border-color: #3498db;
+            outline: none;
+            box-shadow: 0 0 5px rgba(52,152,219,0.5);
+        }
+        .btn-primary {
+            background-color: #3498db;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            color: white;
+            font-size: 1em;
+            font-weight: 500;
+            transition: background-color 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #2980b9;
         }
         .footer {
-            background-color: #333;
+            background-color: #2c3e50;
             color: white;
             text-align: center;
-            padding: 10px;
+            padding: 15px;
+            width: 100%;
+            box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
             position: relative;
             bottom: 0;
-            width: 100%;
+        }
+        @media (max-width: 768px) {
+            .container-fluid {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+            .main-content {
+                margin-left: 20px;
+            }
         }
     </style>
+    <script>
+        $(document).ready(function() {
+            $('#addCategoryForm').on('submit', function(e) {
+                e.preventDefault();
+                var formData = new FormData(this);
+                $.ajax({
+                    url: '{{ url_for("admin_dashboard") }}',
+                    type: 'POST',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function(data) {
+                        $('.flash-messages').empty();
+                        if (data.success) {
+                            $('.flash-messages').html('<div class="alert alert-success">' + data.message + '</div>');
+                            $('#addCategoryForm')[0].reset();
+                        } else {
+                            $('.flash-messages').html('<div class="alert alert-danger">' + data.message + '</div>');
+                        }
+                    },
+                    error: function(xhr) {
+                        $('.flash-messages').html('<div class="alert alert-danger">Error: ' + (xhr.responseJSON ? xhr.responseJSON.message : 'Server error') + '</div>');
+                    }
+                });
+            });
+            $('.sidebar a').each(function() {
+                if ($(this).attr('href') === window.location.pathname) {
+                    $(this).addClass('active');
+                }
+            });
+        });
+    </script>
 </head>
 <body>
-    <nav class="navbar-top">
-        <div class="logo">EASyBook</div>
-        <div class="greeting">Welcome, {{ user.full_name }}</div>
-        <div class="logout">
-            <a href="{{ url_for('logout') }}" class="btn btn-link text-white">Log out</a>
-        </div>
-    </nav>
-
+   <nav class="navbar-top">
+    <div class="logo">EASyBook</div>
+    <div class="greeting">Welcome, {{ user.full_name }}</div>
+    <div class="logout">
+        <a href="{{ url_for('logout') }}">Log out</a>
+    </div>
+</nav>
     <div class="container-fluid">
         <div class="sidebar">
             <a href="{{ url_for('admin_dashboard') }}">Add Category</a>
             <a href="{{ url_for('categories') }}">Categories</a>
+            <a href="{{ url_for('admin_borrow_requests') }}">Borrow Requests</a>
             <a href="{{ url_for('my_account') }}">My Account</a>
             <a href="{{ url_for('all_users') }}">All Users</a>
+            <a href="{{ url_for('logout') }}">Log out</a>
         </div>
         <div class="main-content">
             <h1>Admin Dashboard</h1>
-            <h3>Add Category</h3>
+            <h3>Add New Category</h3>
             <div class="flash-messages">
                 {% with messages = get_flashed_messages(with_categories=true) %}
                     {% if messages %}
@@ -126,29 +226,28 @@
                     {% endif %}
                 {% endwith %}
             </div>
-            <form method="POST" action="{{ url_for('admin_dashboard') }}">
-                <div class="form-group">
-                    <label for="name">Category Name</label>
-                    <input type="text" id="name" name="name" required maxlength="50">
-                </div>
-                <div class="form-group">
-                    <label for="description">Short Description</label>
-                    <textarea id="description" name="description" required maxlength="200" rows="4"></textarea>
-                </div>
-                <div>
-                    <label for="profile_picture">Category Image</label>
-                <input type="file" id="id_profile_picture" name="profile_picture" accept="image/png,image/jpeg,image/gif,image/jfif">
-                </div>
-                <div>
-
-                </div>
-                <button type="submit" class="btn btn-primary">Add Category</button>
-            </form>
+            <div class="form-card">
+                <form id="addCategoryForm" method="POST" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="name">Category Name</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Description</label>
+                        <textarea id="description" name="description"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="category_image">Category Image</label>
+                        <input type="file" id="category_image" name="category_image" accept="image/*">
+                    </div>
+                    <button type="submit" class="btn-primary">Add Category</button>
+                </form>
+            </div>
         </div>
     </div>
-
     <footer class="footer">
         © 2025 EASyBook. All rights reserved.
     </footer>
 </body>
 </html>
+```

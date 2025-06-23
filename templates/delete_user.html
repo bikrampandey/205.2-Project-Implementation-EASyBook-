@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Confirm Delete</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_user.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>Are you sure?</h2>
+        <p>You are about to remove <strong>{{ user.full_name }}</strong>.</p>
+        <form method="POST">
+            <button type="submit" class="btn btn-delete">Yes, Remove</button>
+            <a href="{{ url_for('all_users') }}" class="btn btn-cancel">Cancel</a>
+        </form>
+    </div>
+</body>
+</html>
