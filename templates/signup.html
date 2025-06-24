@@ -1,107 +1,200 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign Up</title>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-    <link rel="stylesheet" href="/static/css/style.css">
-    <style>
-        body {
-            background-image: url();
-        }
-        .error {
-            color: red;
-            font-size: 14px;
-            margin-top: 5px;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sign Up - EASyBook</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
+  <link rel="stylesheet" href="/static/css/style.css"/>
+
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .navbar.header {
+      background-color: #2c3e50;
+      color: white;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+    }
+
+    .navbar.header .logo {
+      font-weight: bold;
+      font-size: 1.5rem;
+    }
+
+    .form-box {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      max-width: 450px;
+      width: 100%;
+      text-align: center;
+      margin: 40px auto;
+    }
+
+    .form-box h1 {
+      color: #2c3e50;
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+
+    .form-box label {
+      color: #2c3e50;
+      font-weight: 500;
+      display: block;
+      text-align: left;
+      margin-bottom: 5px;
+      font-size: 1rem;
+    }
+
+    .form-box input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 1rem;
+      color: #4a5568;
+      margin-bottom: 15px;
+    }
+
+    .form-box input:focus {
+      border-color: #3498db;
+      outline: none;
+      box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+    }
+
+    .signup-btn {
+      background-color: #3498db;
+      border: none;
+      padding: 10px;
+      width: 100%;
+      border-radius: 5px;
+      color: white;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .signup-btn:hover {
+      background-color: #2980b9;
+    }
+
+    .form-box a {
+      display: block;
+      color: #3498db;
+      text-decoration: none;
+      font-size: 1rem;
+      margin-top: 10px;
+    }
+
+    .form-box a:hover {
+      text-decoration: underline;
+    }
+
+    .error {
+      color: red;
+      font-size: 13px;
+      margin-top: -10px;
+      margin-bottom: 10px;
+      text-align: left;
+    }
+
+    .footer {
+      background-color: #2c3e50;
+      color: white;
+      text-align: center;
+      padding: 15px 0;
+      font-size: 0.9rem;
+      margin-top: auto;
+    }
+  </style>
 </head>
 <body>
-    <nav class="navbar">
-        <div class="logo">EASyBook</div>
-        <div class="nav-links">
-            <button class="login-btn" onclick="window.location.href='/login_by_ajax'">Login</button>
-        </div>
-    </nav>
 
-    <div class="container">
-        <div class="form-box">
-            <h1>SIGN UP</h1>
-            <div id="message"></div>
-            <form id="signupForm" method="POST" enctype="multipart/form-data">
-                <input type="text" id="id_name" name="name" placeholder="Full Name" required>
-                <input type="email" id="id_email" name="email" placeholder="Email" required>
-                <input type="text" id="id_phone" name="phone" placeholder="Phone" required>
-                <input type="number" id="id_age" name="age" placeholder="Age" required>
-                <input type="password" id="id_password" name="password" placeholder="Password" required>
-                <input type="password" id="id_confirm_password" name="confirm_password" placeholder="Confirm Password" required>
-                <label for="profile_picture">PROFILE PICTURE</label>
-                <input type="file" id="id_profile_picture" name="profile_picture" accept="image/png,image/jpeg,image/gif,image/jfif">
-                <div id="file-error" class="error"></div>
-
-                <button type="submit" class="signup-btn">Sign up</button>
-            </form>
-            <div class="login-link">
-                <p>Have an account? <a href="/login_by_ajax">Log In</a></p>
-            </div>
-            <div id="output-msg"></div>
-        </div>
+  <!-- Header -->
+  <nav class="navbar header">
+    <div class="logo">EASyBook</div>
+    <div class="nav-links">
+      <a href="/" class="btn btn-outline-light">Home</a>
+      <a href="/login_by_ajax" class="btn btn-primary ml-2">Login</a>
     </div>
+  </nav>
 
-    <footer class="footer">
-        © 2025 1st project. All rights reserved.
-    </footer>
+  <!-- Signup Form -->
+  <div class="container">
+    <div class="form-box">
+      <h1>Create Account</h1>
+      <div id="message"></div>
+      <form id="signupForm" method="POST" enctype="multipart/form-data">
+        <input type="text" id="id_name" name="name" placeholder="Full Name" required>
+        <input type="email" id="id_email" name="email" placeholder="Email" required>
+        <input type="text" id="id_phone" name="phone" placeholder="Phone" required>
+        <input type="number" id="id_age" name="age" placeholder="Age" required>
+        <input type="password" id="id_password" name="password" placeholder="Password" required>
+        <input type="password" id="id_confirm_password" name="confirm_password" placeholder="Confirm Password" required>
 
-    <script type="text/javascript">
-        $(document).ready(function() {
-            $('#signupForm').on('submit', function(e) {
-                e.preventDefault();
-                 var formData = new FormData();
-            formData.append('username', $('#id_name').val());
-            formData.append('email', $('#id_email').val());
-            formData.append('phone', $('#id_phone').val());
-            formData.append('age', $('#id_age').val());
-            formData.append('password', $('#id_password').val());
-            formData.append('confirm_password', $('#id_confirm_password').val());
+        <label for="profile_picture">Profile Picture</label>
+        <input type="file" id="id_profile_picture" name="profile_picture" accept="image/*">
+        <div id="file-error" class="error"></div>
 
-            var fileInput = $('#id_profile_picture')[0].files[0];
-            if (fileInput) {
-                formData.append('profile_picture', fileInput);
-            } else {
-                console.log("No file selected"); // Debug
+        <button type="submit" class="signup-btn">Sign Up</button>
+      </form>
+
+      <div class="login-link">
+        <p>Already have an account? <a href="/login_by_ajax">Log In</a></p>
+      </div>
+
+      <div id="output-msg" class="mt-3 text-center"></div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    © 2025 EASyBook. All rights reserved.
+  </footer>
+
+  <!-- JavaScript -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+    $(document).ready(function () {
+      $('#signupForm').on('submit', function (e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+
+        $.ajax({
+          url: '/signup_by_category',
+          type: 'POST',
+          data: formData,
+          processData: false,
+          contentType: false,
+          success: function (data) {
+            $('#output-msg').text(data.message).css('color', data.success ? 'green' : 'red').show();
+            if (data.success) {
+              setTimeout(() => {
+                window.location.href = data.redirect;
+              }, 1000);
             }
-
-                var formData = new FormData(this);
-                
-                $.ajax({
-                    url: '/signup_by_ajax',
-                    type: 'POST',
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    success: function(data) {
-                        $('#output-msg').text(data.message).css('color', data.success ? 'green' : 'red').show();
-                        if (data.success) {
-                            setTimeout(() => {
-                                window.location.href = data.redirect;
-                            }, 1000);
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        var errorMessage = 'Unknown server error';
-                        if (xhr.responseJSON && xhr.responseJSON.message) {
-                            errorMessage = xhr.responseJSON.message;
-                        } else if (xhr.statusText) {
-                            errorMessage = xhr.statusText;
-                        }
-                        $('#output-msg').text('Error: ' + errorMessage).css('color', 'red').show();
-                    }
-                });
-            });
+          },
+          error: function (xhr) {
+            const errMsg = xhr.responseJSON?.message || xhr.responseText || "Unknown error";
+            $('#output-msg').text("Error: " + errMsg).css('color', 'red').show();
+          }
         });
-    </script>
+      });
+    });
+  </script>
 </body>
 </html>

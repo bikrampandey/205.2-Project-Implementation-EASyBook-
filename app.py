@@ -156,7 +156,35 @@ with app.app_context():
 
 @app.route('/')
 def index():
-    return redirect(url_for('login_by_ajax'))
+        categories = Category.query.all()
+        featured_books = Book.query.filter_by(status=True).order_by(Book.book_id.desc()).limit(6).all()
+        return render_template('index.html', categories=categories, featured_books=featured_books, user=None)
+
+@app.route('/public_search_books')
+def public_search_books():
+        term = request.args.get('term', '').lower()
+        category_id = request.args.get('category_id')  # Optional category filter
+        if category_id:
+            category = db.session.get(Category, category_id)
+            if not category:
+                return jsonify({'error': 'Category not found'})
+            books = category.books
+        else:
+            books = Book.query.all()
+        if term:
+            books = [book for book in books if term in book.book_name.lower() or term in book.author_name.lower()]
+        return jsonify({
+            'books': [
+                {
+                    'book_id': book.book_id,
+                    'book_name': book.book_name,
+                    'author_name': book.author_name,
+                    'status': book.status,
+                    'image_path': book.image_path,
+                    'description': book.description
+                } for book in books
+            ]
+        })
 
 @app.route('/admin_login', methods=['GET', 'POST'])
 def admin_login():
@@ -1046,6 +1074,23 @@ def reject_borrow_request(request_id):
         logging.error(f"Unexpected error in reject_borrow_request route: {str(e)}")
         flash(f'Server error: {str(e)}', 'error')
         return redirect(url_for('admin_borrow_requests'))
+    
+
+
+@app.route('/public_category/<int:category_id>')
+def public_category_books(category_id):
+    try:
+        category = db.session.get(Category, category_id)
+        if not category:
+            flash('Category not found!', 'error')
+            return redirect(url_for('index'))
+        return render_template('public_category_books.html', category=category, user=None)
+    except OperationalError as e:
+        logging.error(f"Database error in public_category_books route: {str(e)}")
+        return render_template('error.html', message='Database error. Please try again later.')
+    except Exception as e:
+        logging.error(f"Unexpected error in public_category_books route: {str(e)}")
+        return render_template('error.html', message=f'Server error: {str(e)}')
 
 @app.route('/logout')
 def logout():

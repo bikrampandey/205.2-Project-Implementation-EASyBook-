@@ -75,15 +75,16 @@
             gap: 20px;
             margin-top: 20px;
         }
-        .book-card {
-            background: #fff;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            overflow: hidden;
-            transition: transform 0.3s ease;
-            text-align: center;
-            padding: 10px;
-        }
+        .book-card img {
+    width: 100%;
+    max-width: 180px; /* Ensure images don’t exceed card width */
+    height: 220px;
+    object-fit: cover;
+    border-radius: 5px;
+    background-color: #e0e0e0;
+    display: block;
+    margin: 0 auto; /* Center image if narrower than card */
+}
         .book-card:hover {
             transform: translateY(-5px);
         }
@@ -159,40 +160,40 @@
     </div>
 
     <script>
-        $(document).ready(function() {
-            $('#search-btn').on('click', function() {
-                let searchTerm = $('#search-input').val().toLowerCase();
-                $.ajax({
-                    url: '{{ url_for("search_books", category_id=category.category_id) }}',
-                    type: 'GET',
-                    data: { term: searchTerm },
-                    success: function(response) {
-                        $('#book-grid').empty();
-                        if (response.books && response.books.length > 0) {
-                            response.books.forEach(book => {
-                                let statusClass = book.status ? 'available' : 'not-available';
-                                let imagePath = book.image_path || 'book_images/default_book.jpg';
-                                $('#book-grid').append(`
-                                    <a href="/borrow_book/${book.book_id}" class="book-card" data-book-name="${book.book_name}" data-author="${book.author_name}">
-                                        <img src="/static/${imagePath}" alt="${book.book_name}">
-                                        <div class="book-info">
-                                            <h5>${book.book_name}</h5>
-                                            <p>Author: ${book.author_name}</p>
-                                            <p>Status: <span class="status-${statusClass}">${book.status ? 'Available' : 'Not Available'}</span></p>
-                                        </div>
-                                    </a>
-                                `);
-                            });
-                        } else {
-                            $('#book-grid').html('<p>No books found matching your search.</p>');
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        alert('Error searching books: ' + error);
-                    }
-                });
-            });
+      $(document).ready(function() {
+    $('#search-btn').on('click', function() {
+        let searchTerm = $('#search-input').val().toLowerCase();
+        $.ajax({
+            url: '{{ url_for("search_books", category_id=category.category_id) }}',
+            type: 'GET',
+            data: { term: searchTerm },
+            success: function(response) {
+                $('#book-grid').empty();
+                if (response.books && response.books.length > 0) {
+                    response.books.forEach(book => {
+                        let statusClass = book.status ? 'available' : 'not-available';
+                        let imagePath = book.image_path || 'static/book_images/default_book.jpg';
+                        $('#book-grid').append(`
+                            <a href="/borrow_book/${book.book_id}" class="book-card" data-book-name="${book.book_name}" data-author="${book.author_name}">
+                                <img src="/${imagePath}" alt="${book.book_name}">
+                                <div class="book-info">
+                                    <h5>${book.book_name}</h5>
+                                    <p>Author: ${book.author_name}</p>
+                                    <p>Status: <span class="status-${statusClass}">${book.status ? 'Available' : 'Not Available'}</span></p>
+                                </div>
+                            </a>
+                        `);
+                    });
+                } else {
+                    $('#book-grid').html('<p>No books found matching your search.</p>');
+                }
+            },
+            error: function(xhr, status, error) {
+                alert('Error searching books: ' + error);
+            }
         });
+    });
+});
     </script>
 </body>
 </html>
