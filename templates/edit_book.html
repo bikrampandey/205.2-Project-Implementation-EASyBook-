@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Book - EASyBook</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-xrRywqdh3PHs8keKZN+8zzc5TX0GRTLCcmivcbNJWm2rs5C8PRhcEn3czEjhAO9o" crossorigin="anonymous"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            margin: 0;
+            min-height: 100vh;
+        }
+        .navbar-top {
+            background-color: #2c3e50;
+            color: white;
+            padding: 15px 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .navbar-top .logo {
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+        .navbar-top .greeting {
+            font-size: 1.1em;
+            margin: 0 20px;
+        }
+        .navbar-top .logout a {
+            color: white;
+            text-decoration: none;
+            font-size: 1em;
+            transition: color 0.3s ease;
+        }
+        .navbar-top .logout a:hover {
+            color: #3498db;
+        }
+        .container-fluid {
+            display: flex;
+            min-height: calc(100vh - 80px);
+        }
+        .sidebar {
+            width: 250px;
+            background-color: #34495e;
+            padding: 20px 15px;
+            color: white;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .sidebar a {
+            display: block;
+            color: #ecf0f1;
+            padding: 12px 15px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            transition: background-color 0.3s ease;
+        }
+        .sidebar a:hover {
+            background-color: #3498db;
+            color: white;
+        }
+        .main-content {
+            flex-grow: 1;
+            padding: 30px;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            margin: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        .main-content h1 {
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        .main-content h3 {
+            color: #7f8c8d;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+        }
+        .form-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .form-container .form-group label {
+            color: #2c3e50;
+            font-weight: 600;
+        }
+        .form-container .form-control {
+            border-radius: 5px;
+            border: 1px solid #ced4da;
+            padding: 10px;
+            font-size: 1em;
+        }
+        .form-container .form-control:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+        }
+        .form-container .btn-primary {
+            background-color: #3498db;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1em;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        .form-container .btn-primary:hover {
+            background-color: #2980b9;
+        }
+        .form-container .btn-secondary {
+            background-color: #7f8c8d;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1em;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        .form-container .btn-secondary:hover {
+            background-color: #6c757d;
+        }
+        .flash-messages .alert {
+            border-radius: 5px;
+            margin-bottom: 15px;
+            padding: 15px;
+        }
+        .footer {
+            background-color: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            width: 100%;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .current-image {
+            max-width: 200px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar-top">
+        <div class="logo">EASyBook</div>
+        <div class="greeting">Welcome, {{ user.full_name }}</div>
+        <div class="logout">
+            <a href="{{ url_for('logout') }}" class="btn btn-link text-white">Logout</a>
+        </div>
+    </nav>
+    <div class="container-fluid">
+        <div class="sidebar">
+            <a href="{{ url_for('admin_dashboard') }}">Add Category</a>
+            <a href="{{ url_for('categories') }}">Categories</a>
+            <a href="{{ url_for('admin_borrow_requests') }}">Borrow Requests</a>
+            <a href="{{ url_for('my_account') }}">My Account</a>
+            <a href="{{ url_for('all_users') }}">All Users</a>
+        </div>
+        <div class="main-content">
+            <h1>Edit Book</h1>
+            <h3>Update Book Details in {{ book.category.name }}</h3>
+            <a href="{{ url_for('admin_view_books', category_id=book.category_id) }}" class="btn btn-secondary mb-3">Back to Books</a>
+            <div class="flash-messages">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }}">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+            </div>
+            <div class="form-container">
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="book_name">Book Name</label>
+                        <input type="text" class="form-control" id="book_name" name="book_name" value="{{ book.book_name }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="author_name">Author Name</label>
+                        <input type="text" class="form-control" id="author_name" name="author_name" value="{{ book.author_name }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="publication_year">Publication Year</label>
+                        <input type="number" class="form-control" id="publication_year" name="publication_year" value="{{ book.publication_year }}" min="1000" max="{{ dt.now().year }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="4">{{ book.description or '' }}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="category_id">Category</label>
+                        <select class="form-control" id="category_id" name="category_id" required>
+                            {% for category in categories %}
+                                <option value="{{ category.category_id }}" {% if category.category_id == book.category_id %}selected{% endif %}>{{ category.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="status">Status</label>
+                        <select class="form-control" id="status" name="status" required>
+                            <option value="true" {% if book.status %}selected{% endif %}>Available</option>
+                            <option value="false" {% if not book.status %}selected{% endif %}>Not Available</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="book_image">Book Image</label>
+                        <input type="file" class="form-control-file" id="book_image" name="book_image" accept="image/*">
+                        <small class="form-text text-muted">Current image: <img src="/{{ book.image_path }}" alt="{{ book.book_name }}" class="current-image" onerror="this.src='/static/book_images/default_book.jpg'"></small>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Update Book</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="footer">
+        &copy; 2025 EASyBook. All rights reserved.
+    </div>
+</body>
+</html>

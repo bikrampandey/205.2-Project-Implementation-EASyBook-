@@ -145,46 +145,38 @@ with app.app_context():
         logging.info("Admin user created successfully!")
     else:
         logging.info("Admin user already exists!")
-        
-        books = Book.query.all()
-        for book in books:
-            print(f"Book: {book.book_name}, ID: {book.book_id}, Image: {book.image_path}, Category ID: {book.category_id}")
-            
-        categories = Category.query.all()
-        for category in categories:
-            print(f"Category: {category.name}, ID: {category.category_id}")
 
 @app.route('/')
 def index():
-        categories = Category.query.all()
-        featured_books = Book.query.filter_by(status=True).order_by(Book.book_id.desc()).limit(6).all()
-        return render_template('index.html', categories=categories, featured_books=featured_books, user=None)
+    categories = Category.query.all()
+    featured_books = Book.query.filter_by(status=True).order_by(Book.book_id.desc()).limit(6).all()
+    return render_template('index.html', categories=categories, featured_books=featured_books, user=None)
 
 @app.route('/public_search_books')
 def public_search_books():
-        term = request.args.get('term', '').lower()
-        category_id = request.args.get('category_id')  # Optional category filter
-        if category_id:
-            category = db.session.get(Category, category_id)
-            if not category:
-                return jsonify({'error': 'Category not found'})
-            books = category.books
-        else:
-            books = Book.query.all()
-        if term:
-            books = [book for book in books if term in book.book_name.lower() or term in book.author_name.lower()]
-        return jsonify({
-            'books': [
-                {
-                    'book_id': book.book_id,
-                    'book_name': book.book_name,
-                    'author_name': book.author_name,
-                    'status': book.status,
-                    'image_path': book.image_path,
-                    'description': book.description
-                } for book in books
-            ]
-        })
+    term = request.args.get('term', '').lower()
+    category_id = request.args.get('category_id')  # Optional category filter
+    if category_id:
+        category = db.session.get(Category, category_id)
+        if not category:
+            return jsonify({'error': 'Category not found'})
+        books = category.books
+    else:
+        books = Book.query.all()
+    if term:
+        books = [book for book in books if term in book.book_name.lower() or term in book.author_name.lower()]
+    return jsonify({
+        'books': [
+            {
+                'book_id': book.book_id,
+                'book_name': book.book_name,
+                'author_name': book.author_name,
+                'status': book.status,
+                'image_path': book.image_path,
+                'description': book.description
+            } for book in books
+        ]
+    })
 
 @app.route('/admin_login', methods=['GET', 'POST'])
 def admin_login():
@@ -194,7 +186,7 @@ def admin_login():
             email = data.get('email')
             password = data.get('password')
             logging.debug(f"Admin login attempt with email: {email}")
-            user = User.query.filter_by(email=email).first()  # Fixed query
+            user = User.query.filter_by(email=email).first()
             if user:
                 logging.debug(f"User found: {user.email}, is_admin: {user.is_admin}, password hash: {user.password}")
                 if user.is_admin:
@@ -327,7 +319,7 @@ def home():
     except Exception as e:
         logging.error(f"Unexpected error in home route: {str(e)}")
         return render_template('error.html', message=f'Server error: {str(e)}')
-    
+
 @app.route('/all_users')
 def all_users():
     if 'user_id' not in session or not session.get('is_admin'):
@@ -347,6 +339,41 @@ def all_users():
     except Exception as e:
         logging.error(f"Unexpected error in all_users route: {str(e)}")
         return render_template('error.html', message=f'Server error: {str(e)}')
+
+@app.route('/delete_user/<int:user_id>', methods=['POST'])
+def delete_user(user_id):
+    if 'user_id' not in session or not session.get('is_admin'):
+        return jsonify({'success': False, 'message': 'Unauthorized access'}), 401
+    try:
+        current_user = db.session.get(User, session['user_id'])
+        if not current_user:
+            session.pop('user_id', None)
+            session.pop('is_admin', None)
+            return jsonify({'success': False, 'message': 'Current user not found'}), 404
+        user_to_delete = db.session.get(User, user_id)
+        if not user_to_delete:
+            return jsonify({'success': False, 'message': 'User not found'}), 404
+        # Prevent deleting the last admin
+        admin_count = User.query.filter_by(is_admin=True).count()
+        if user_to_delete.is_admin and admin_count <= 1:
+            return jsonify({'success': False, 'message': 'Cannot delete the last admin user'}), 400
+        # Prevent self-deletion
+        if user_to_delete.user_id == current_user.user_id:
+            return jsonify({'success': False, 'message': 'Cannot delete your own account'}), 400
+        # Delete associated borrow requests
+        BorrowRequest.query.filter_by(user_id=user_id).delete()
+        db.session.delete(user_to_delete)
+        db.session.commit()
+        logging.info(f"User {user_id} deleted successfully by admin {current_user.user_id}")
+        return jsonify({'success': True, 'message': 'User deleted successfully!'})
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        logging.error(f"Database error in delete_user route: {str(e)}")
+        return jsonify({'success': False, 'message': 'Database error. Please try again later.'}), 500
+    except Exception as e:
+        db.session.rollback()
+        logging.error(f"Unexpected error in delete_user route: {str(e)}")
+        return jsonify({'success': False, 'message': f'Server error: {str(e)}'}), 500
 
 @app.route('/profile', methods=['GET', 'POST'])
 def profile():
@@ -549,31 +576,30 @@ def edit_category(category_id):
 @app.route('/delete_category/<int:category_id>', methods=['POST'])
 def delete_category(category_id):
     if 'user_id' not in session or not session.get('is_admin'):
-        return redirect(url_for('admin_login'))
+        return jsonify({'success': False, 'message': 'Unauthorized access'}), 401
     try:
         user = db.session.get(User, session['user_id'])
         if not user:
-            logging.error(f"User not found for user_id: {session['user_id']}")
             session.pop('user_id', None)
             session.pop('is_admin', None)
-            return redirect(url_for('admin_login'))
+            return jsonify({'success': False, 'message': 'Current user not found'}), 404
         category = db.session.get(Category, category_id)
         if not category:
-            flash('Category not found!', 'error')
-            return redirect(url_for('categories'))
+            return jsonify({'success': False, 'message': 'Category not found'}), 404
+        # Delete associated books
+        Book.query.filter_by(category_id=category_id).delete()
         db.session.delete(category)
         db.session.commit()
-        logging.debug(f"Category {category_id} deleted successfully")
-        flash('Category deleted successfully!', 'success')
-        return redirect(url_for('categories'))
-    except OperationalError as e:
+        logging.info(f"Category {category_id} deleted successfully by admin {user.user_id}")
+        return jsonify({'success': True, 'message': 'Category deleted successfully!'})
+    except SQLAlchemyError as e:
         db.session.rollback()
         logging.error(f"Database error in delete_category route: {str(e)}")
-        return render_template('error.html', message='Database error. Please try again later.')
+        return jsonify({'success': False, 'message': 'Database error. Please try again later.'}), 500
     except Exception as e:
         db.session.rollback()
         logging.error(f"Unexpected error in delete_category route: {str(e)}")
-        return render_template('error.html', message=f'Server error: {str(e)}')
+        return jsonify({'success': False, 'message': f'Server error: {str(e)}'}), 500
 
 @app.route('/admin_view_books/<int:category_id>')
 def admin_view_books(category_id):
@@ -597,6 +623,111 @@ def admin_view_books(category_id):
     except Exception as e:
         logging.error(f"Unexpected error in admin_view_books route: {str(e)}")
         return render_template('error.html', message=f'Server error: {str(e)}')
+
+@app.route('/edit_book/<int:book_id>', methods=['GET', 'POST'])
+def edit_book(book_id):
+    if 'user_id' not in session or not session.get('is_admin'):
+        logging.debug("No user_id or not admin, redirecting to admin_login")
+        return redirect(url_for('admin_login'))
+    try:
+        user = db.session.get(User, session['user_id'])
+        if not user:
+            logging.error(f"User not found for user_id: {session['user_id']}")
+            session.pop('user_id', None)
+            session.pop('is_admin', None)
+            return redirect(url_for('admin_login'))
+        book = db.session.get(Book, book_id)
+        if not book:
+            flash('Book not found!', 'error')
+            return redirect(url_for('categories'))
+        categories = Category.query.all()
+        if request.method == 'POST':
+            book_name = request.form.get('book_name')
+            author_name = request.form.get('author_name')
+            publication_year = request.form.get('publication_year')
+            description = request.form.get('description')
+            category_id = request.form.get('category_id')
+            book_image = request.files.get('book_image')
+            status = request.form.get('status') == 'true'
+            logging.debug(f"Edit book form data: book_name={book_name}, author_name={author_name}, publication_year={publication_year}, category_id={category_id}")
+            if not all([book_name, author_name, publication_year, category_id]):
+                flash('Book name, author name, publication year, and category are required!', 'error')
+                return render_template('edit_book.html', user=user, book=book, categories=categories, dt=dt)
+            try:
+                publication_year = int(publication_year)
+                if publication_year < 1000 or publication_year > dt.now().year:
+                    flash('Invalid publication year!', 'error')
+                    return render_template('edit_book.html', user=user, book=book, categories=categories, dt=dt)
+            except ValueError:
+                flash('Publication year must be a valid number!', 'error')
+                return render_template('edit_book.html', user=user, book=book, categories=categories, dt=dt)
+            category = db.session.get(Category, category_id)
+            if not category:
+                flash('Selected category not found!', 'error')
+                return render_template('edit_book.html', user=user, book=book, categories=categories, dt=dt)
+            if book_image and allowed_file(book_image.filename):
+                filename = secure_filename(book_image.filename)
+                dt_now = dt.now().strftime("%Y%m%d%H%M%S%f")
+                file_extension = get_file_extension(book_image.filename)
+                filename_to_save = f"{book_name}_{dt_now}.{file_extension}"
+                file_path = os.path.join(app.config['BOOK_IMAGE_UPLOAD_FOLDER'], filename_to_save)
+                try:
+                    book_image.save(file_path)
+                    book.image_path = f'static/book_images/{filename_to_save}'
+                    logging.debug(f"Book image updated at: {book.image_path}")
+                except Exception as e:
+                    logging.error(f"Error saving book image: {str(e)}")
+                    flash(f'Failed to save book image: {str(e)}', 'error')
+                    return render_template('edit_book.html', user=user, book=book, categories=categories, dt=dt)
+            book.book_name = book_name
+            book.author_name = author_name
+            book.publication_year = publication_year
+            book.description = description
+            book.category_id = category_id
+            book.status = status
+            db.session.commit()
+            logging.info(f"Book '{book_name}' updated successfully")
+            flash('Book updated successfully!', 'success')
+            return redirect(url_for('admin_view_books', category_id=book.category_id))
+        return render_template('edit_book.html', user=user, book=book, categories=categories, dt=dt)
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        logging.error(f"Database error in edit_book route: {str(e)}")
+        flash('Database error. Please try again later.', 'error')
+        return render_template('edit_book.html', user=user, book=book, categories=categories, dt=dt)
+    except Exception as e:
+        db.session.rollback()
+        logging.error(f"Unexpected error in edit_book route: {str(e)}")
+        flash(f'Server error: {str(e)}', 'error')
+        return render_template('edit_book.html', user=user, book=book, categories=categories, dt=dt)
+
+@app.route('/delete_book/<int:book_id>', methods=['POST'])
+def delete_book(book_id):
+    if 'user_id' not in session or not session.get('is_admin'):
+        return jsonify({'success': False, 'message': 'Unauthorized access'}), 401
+    try:
+        user = db.session.get(User, session['user_id'])
+        if not user:
+            session.pop('user_id', None)
+            session.pop('is_admin', None)
+            return jsonify({'success': False, 'message': 'Current user not found'}), 404
+        book = db.session.get(Book, book_id)
+        if not book:
+            return jsonify({'success': False, 'message': 'Book not found'}), 404
+        # Delete associated borrow requests
+        BorrowRequest.query.filter_by(book_id=book_id).delete()
+        db.session.delete(book)
+        db.session.commit()
+        logging.info(f"Book {book_id} deleted successfully by admin {user.user_id}")
+        return jsonify({'success': True, 'message': 'Book deleted successfully!'})
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        logging.error(f"Database error in delete_book route: {str(e)}")
+        return jsonify({'success': False, 'message': 'Database error. Please try again later.'}), 500
+    except Exception as e:
+        db.session.rollback()
+        logging.error(f"Unexpected error in delete_book route: {str(e)}")
+        return jsonify({'success': False, 'message': f'Server error: {str(e)}'}), 500
 
 @app.route('/category/<int:category_id>')
 def user_category_books(category_id):
@@ -750,7 +881,7 @@ def borrow_form(book_id):
                 db.session.commit()
                 logging.info(f"Borrow request created: Book={book.book_name}, User={name}, Borrow Date={borrow_date}, Return Date={return_date}, Status=pending")
                 flash('Borrow request submitted successfully! Awaiting admin approval.', 'success')
-                return redirect(url_for('profile'))  # Redirect to profile
+                return redirect(url_for('profile'))
             except ValueError:
                 flash('Invalid date format!', 'error')
                 return render_template('borrow_form.html', user=user, book=book, categories=categories)
@@ -764,7 +895,7 @@ def borrow_form(book_id):
         db.session.rollback()
         logging.error(f"Unexpected error in borrow_form route: {str(e)}", exc_info=True)
         return render_template('error.html', message=f'Server error: {str(e)}')
-    
+
 @app.route('/my_account', methods=['GET', 'POST'])
 def my_account():
     if 'user_id' not in session or not session.get('is_admin'):
@@ -884,7 +1015,7 @@ def add_book(category_id):
         db.session.rollback()
         logging.error(f"Unexpected error in add_book route: {str(e)}")
         return jsonify({'success': False, 'message': f'Server error: {str(e)}'})
-    
+
 @app.route('/borrowed_books')
 def borrowed_books():
     if 'user_id' not in session:
@@ -1074,8 +1205,6 @@ def reject_borrow_request(request_id):
         logging.error(f"Unexpected error in reject_borrow_request route: {str(e)}")
         flash(f'Server error: {str(e)}', 'error')
         return redirect(url_for('admin_borrow_requests'))
-    
-
 
 @app.route('/public_category/<int:category_id>')
 def public_category_books(category_id):
