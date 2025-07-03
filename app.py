@@ -12,9 +12,25 @@ from sqlalchemy.exc import OperationalError, SQLAlchemyError
 app = Flask(__name__)
 
 # Configuration
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:1234@localhost:5432/easybook_db'
+import os
+
+# Database configuration for AWS Elastic Beanstalk
+if 'RDS_HOSTNAME' in os.environ:
+    # Production (AWS) configuration
+    app.config['SQLALCHEMY_DATABASE_URI'] = (
+        f"postgresql://{os.environ['RDS_USERNAME']}:"
+        f"{os.environ['RDS_PASSWORD']}@"
+        f"{os.environ['RDS_HOSTNAME']}:"
+        f"{os.environ['RDS_PORT']}/"
+        f"{os.environ['RDS_DB_NAME']}"
+    )
+    app.config['DEBUG'] = False
+else:
+    # Local development configuration
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:1234@localhost:5432/easybook_db'
+    app.config['DEBUG'] = True
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SECRET_KEY'] = os.urandom(24).hex()
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
 PROFILE_PIC_UPLOAD_FOLDER = 'static/profile_pic_uploads/'
 CATEGORY_IMAGE_UPLOAD_FOLDER = 'static/category_images/'
 BOOK_IMAGE_UPLOAD_FOLDER = 'static/book_images/'
